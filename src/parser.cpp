@@ -69,54 +69,20 @@ bool Parser::visitTranslationUnit(){
 bool Parser::visitExternalDeclaration(
 		TranslationUnitAST *tunit
 		){
-	//FunctionDeclaration
-	PrototypeAST *proto=visitFunctionDeclaration();
-	if(proto){
-		tunit->addPrototype(proto);
-		return true;
-	}
-
 	//FunctionDefinition
 	FunctionAST *func_def=visitFunctionDefinition();
 	if(func_def){
 		tunit->addFunction(func_def);
 		return true;
 	}
-
+	FunctionAST *exter_stmt=visitExternalStatement();
+	if(exter_stmt){
+		tunit->addFunction(exter_stmt);
+		return true;
+	}
 	return false;
 }
 
-
-/**
-  * FunctionDclaration用構文解析メソッド
-  * @return 解析成功：PrototypeAST　解析失敗：NULL
-  */
-PrototypeAST *Parser::visitFunctionDeclaration(){
-	int bkup=Tokens->getCurIndex();
-	PrototypeAST *proto=visitPrototype();
-	if(!proto){
-		return NULL;
-	}
-
-	//prototype;
-	if(Tokens->getCurString()==";"){
-		if( PrototypeTable.find(proto->getName()) != PrototypeTable.end() ||
-			(FunctionTable.find(proto->getName()) != FunctionTable.end() &&
-			FunctionTable[proto->getName()] != proto->getParamNum() ) ){
-			fprintf(stderr, "Function：%s is redefined" ,proto->getName().c_str());
-			SAFE_DELETE(proto);
-			return NULL;
-		}
-		PrototypeTable[proto->getName()]=proto->getParamNum();
-		Tokens->getNextToken();
-		return proto;
-	}else{
-		SAFE_DELETE(proto);
-		Tokens->applyTokenIndex(bkup);
-		return NULL;
-	}
-
-}
 
 
 /**
@@ -319,6 +285,73 @@ FunctionStmtAST *Parser::visitFunctionStatement(PrototypeAST *proto){
 	}
 
 }
+
+
+FunctionAST *Parser::visitExternalStatement(){
+	int bkup=Tokens->getCurIndex();
+	std::vector<std::string> param_list;
+	PrototypeAST *proto = new PrototypeAST("main", param_list);
+	//create FunctionStatement
+	FunctionStmtAST *func_stmt = new FunctionStmtAST();
+
+	VariableDeclAST *var_decl;
+	BaseAST *stmt;
+
+	//{statement_list}
+	VariableTable.clear();
+	if(stmt=visitStatement()){
+		while(stmt){
+			if(llvm::isa<JumpStmtAST>(stmt)){
+				SAFE_DELETE(stmt);
+				Tokens->applyTokenIndex(bkup);
+				fprintf(stderr, "'return' outside function\n");
+				return NULL;
+			}
+			func_stmt->addStatement(stmt);
+			stmt=visitStatement();
+		}
+
+	//variable_declaration_list
+	}else if(var_decl=visitVariableDeclaration()){
+		while(var_decl){
+			var_decl->setDeclType(VariableDeclAST::local);
+			if(std::find(VariableTable.begin(), VariableTable.end(), var_decl->getName()) !=
+					VariableTable.end()){
+				SAFE_DELETE(var_decl);
+				SAFE_DELETE(func_stmt);
+				return NULL;
+			}
+			func_stmt->addVariableDeclaration(var_decl);
+			VariableTable.push_back(var_decl->getName());
+			//parse Variable Delaration
+			var_decl=visitVariableDeclaration();
+		}
+
+		if(stmt=visitStatement()){
+			while(stmt){
+				if(llvm::isa<JumpStmtAST>(stmt)){
+					SAFE_DELETE(stmt);
+					Tokens->applyTokenIndex(bkup);
+					fprintf(stderr, "'return' outside function\n");
+					return NULL;
+				}
+				func_stmt->addStatement(stmt);
+				stmt=visitStatement();
+			}
+		}
+
+	//other
+	}else{
+		SAFE_DELETE(func_stmt);
+		Tokens->applyTokenIndex(bkup);
+		return NULL;
+	}
+
+	FunctionTable[proto->getName()]=proto->getParamNum();
+	return new FunctionAST(proto,func_stmt);
+
+}
+
 
 
 /**
