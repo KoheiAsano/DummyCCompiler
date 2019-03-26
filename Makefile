@@ -8,7 +8,7 @@ LIB_DIR = $(PROJECT_DIR)/lib
 
 SAMPLE_DIR = $(PROJECT_DIR)/sample
 
-MAIN_SRC = dcc.cpp
+MAIN_SRC = dpy.cpp
 LEXER_SRC = lexer.cpp
 AST_SRC = AST.cpp
 PARSER_SRC = parser.cpp
@@ -28,7 +28,7 @@ PARSER_OBJ = $(OBJ_DIR)/$(PARSER_SRC:.cpp=.o)
 CODEGEN_OBJ = $(OBJ_DIR)/$(CODEGEN_SRC:.cpp=.o)
 FRONT_OBJ = $(MAIN_OBJ) $(LEXER_OBJ) $(AST_OBJ) $(PARSER_OBJ) $(CODEGEN_OBJ)
 
-TOOL = $(BIN_DIR)/dcc
+TOOL = $(BIN_DIR)/dpy
 CONFIG = llvm-config
 LLVM_FLAGS = --cxxflags --ldflags --libs --system-libs
 INC_FLAGS = -I$(INC_DIR)
@@ -58,7 +58,10 @@ clean:
 	rm -rf $(FRONT_OBJ) $(TOOL)
 
 test:
-	./bin/dcc ./sample/test.dp -o ./sample/test.ll
+	./bin/dpy ./sample/test.dp -o ./sample/test.ll
+	clang -emit-llvm -S lib/printnum.c -o lib/printnum.ll
+	llvm-link ./sample/test.ll ./lib/printnum.ll -S -o ./sample/link_test.ll
+	lli ./sample/link_test.ll
 
 run:
 	$(TOOL) -o $(SAMPLE_DIR)/test.ll -l $(LIB_DIR)/printnum.ll $(SAMPLE_DIR)/test.dc -jit
