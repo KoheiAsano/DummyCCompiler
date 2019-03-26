@@ -61,8 +61,6 @@ TokenStream *LexicalAnalysis(std::string input_filename){
 						indent++;
 						ishead = false;
 					}else if(indent && token_str.size() < indent*indent_length){
-						printf("%d\n", indent*indent_length);
-						printf("%d\n", token_str.size());
 
 						next_token = new Token("DEDENT", TOK_DEDENT, line_num);
 						indent--;
