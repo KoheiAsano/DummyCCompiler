@@ -73,7 +73,10 @@ bool CodeGen::generateTranslationUnit(TranslationUnitAST &tunit, std::string nam
 			SAFE_DELETE(Mod);
 			return false;
 		}
+		if(func->getName() == "main")Builder->CreateRet(Builder->getInt32(0));
 	}
+
+
 
 	return true;
 }
