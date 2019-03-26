@@ -42,8 +42,8 @@ typedef class Parser{
 		  */
 		bool visitTranslationUnit();
 		bool visitExternalDeclaration(TranslationUnitAST *tunit);
-		PrototypeAST *visitFunctionDeclaration();
 		FunctionAST *visitFunctionDefinition();
+		FunctionAST *visitExternalStatement();
 		PrototypeAST *visitPrototype();
 		FunctionStmtAST *visitFunctionStatement(PrototypeAST *proto);
 		VariableDeclAST *visitVariableDeclaration();
