@@ -231,36 +231,21 @@ FunctionStmtAST *Parser::visitFunctionStatement(PrototypeAST *proto){
 	//{statement_list}
 	if(stmt=visitStatement()){
 		while(stmt){
+			if(llvm::isa<BinaryExprAST>(stmt) && llvm::dyn_cast<BinaryExprAST>(stmt)->getOp() == "="){
+				std::string LHSname = llvm::dyn_cast<VariableAST>(llvm::dyn_cast<BinaryExprAST>(stmt)->getLHS())->getName();
+				if(std::find(VariableTable.begin(), VariableTable.end(), LHSname) ==
+						VariableTable.end()){
+					var_decl=new VariableDeclAST(LHSname);
+					var_decl->setDeclType(VariableDeclAST::local);
+					func_stmt->addVariableDeclaration(var_decl);
+					VariableTable.push_back(var_decl->getName());
+				}
+			}
 			last_stmt=stmt;
 			func_stmt->addStatement(stmt);
 			stmt=visitStatement();
 		}
 
-	//variable_declaration_list
-	}else if(var_decl=visitVariableDeclaration()){
-		while(var_decl){
-			var_decl->setDeclType(VariableDeclAST::local);
-			if(std::find(VariableTable.begin(), VariableTable.end(), var_decl->getName()) !=
-					VariableTable.end()){
-				SAFE_DELETE(var_decl);
-				SAFE_DELETE(func_stmt);
-				return NULL;
-			}
-			func_stmt->addVariableDeclaration(var_decl);
-			VariableTable.push_back(var_decl->getName());
-			//parse Variable Delaration
-			var_decl=visitVariableDeclaration();
-		}
-
-		if(stmt=visitStatement()){
-			while(stmt){
-				last_stmt=stmt;
-				func_stmt->addStatement(stmt);
-				stmt=visitStatement();
-			}
-		}
-
-	//other
 	}else{
 		SAFE_DELETE(func_stmt);
 		Tokens->applyTokenIndex(bkup);
@@ -307,40 +292,20 @@ FunctionAST *Parser::visitExternalStatement(){
 				fprintf(stderr, "'return' outside function\n");
 				return NULL;
 			}
+			if(llvm::isa<BinaryExprAST>(stmt) && llvm::dyn_cast<BinaryExprAST>(stmt)->getOp() == "="){
+				std::string LHSname = llvm::dyn_cast<VariableAST>(llvm::dyn_cast<BinaryExprAST>(stmt)->getLHS())->getName();
+				if(std::find(VariableTable.begin(), VariableTable.end(), LHSname) ==
+						VariableTable.end()){
+						var_decl=new VariableDeclAST(LHSname);
+						var_decl->setDeclType(VariableDeclAST::local);
+						func_stmt->addVariableDeclaration(var_decl);
+						VariableTable.push_back(var_decl->getName());
+				}
+			}
 			func_stmt->addStatement(stmt);
 			stmt=visitStatement();
 		}
 
-	//variable_declaration_list
-	}else if(var_decl=visitVariableDeclaration()){
-		while(var_decl){
-			var_decl->setDeclType(VariableDeclAST::local);
-			if(std::find(VariableTable.begin(), VariableTable.end(), var_decl->getName()) !=
-					VariableTable.end()){
-				SAFE_DELETE(var_decl);
-				SAFE_DELETE(func_stmt);
-				return NULL;
-			}
-			func_stmt->addVariableDeclaration(var_decl);
-			VariableTable.push_back(var_decl->getName());
-			//parse Variable Delaration
-			var_decl=visitVariableDeclaration();
-		}
-
-		if(stmt=visitStatement()){
-			while(stmt){
-				if(llvm::isa<JumpStmtAST>(stmt)){
-					SAFE_DELETE(stmt);
-					Tokens->applyTokenIndex(bkup);
-					fprintf(stderr, "'return' outside function\n");
-					return NULL;
-				}
-				func_stmt->addStatement(stmt);
-				stmt=visitStatement();
-			}
-		}
-
-	//other
 	}else{
 		SAFE_DELETE(func_stmt);
 		Tokens->applyTokenIndex(bkup);
@@ -473,8 +438,6 @@ BaseAST *Parser::visitAssignmentExpression(){
 	BaseAST *lhs;
 	if(Tokens->getCurType()==TOK_IDENTIFIER){
 		//変数が宣言されているか確認
-		if(std::find(VariableTable.begin(), VariableTable.end(), Tokens->getCurString()) !=
-				VariableTable.end()){
 
 			lhs=new VariableAST(Tokens->getCurString());
 			Tokens->getNextToken();
@@ -492,9 +455,6 @@ BaseAST *Parser::visitAssignmentExpression(){
 				SAFE_DELETE(lhs);
 				Tokens->applyTokenIndex(bkup);
 			}
-		}else{
-			Tokens->applyTokenIndex(bkup);
-		}
 	}
 
 	//additive_expression
