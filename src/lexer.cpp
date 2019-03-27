@@ -90,8 +90,8 @@ TokenStream *LexicalAnalysis(std::string input_filename){
 					}
 					if(!isalnum(next_char))
 					    index--;
-				if(token_str == "int"){
-					next_token = new Token(token_str, TOK_INT, line_num);
+				if(token_str == "def"){
+					next_token = new Token(token_str, TOK_DEF, line_num);
 					ishead = false;
 				}else if(token_str == "return"){
 					next_token = new Token(token_str, TOK_RETURN, line_num);
@@ -150,6 +150,7 @@ TokenStream *LexicalAnalysis(std::string input_filename){
 						next_char == ',' ||
 						next_char == '(' ||
 						next_char == ')' ||
+						next_char == ':' ||
 						next_char == '{' ||
 						next_char == '}'){
 					token_str += next_char;

@@ -59,18 +59,18 @@ clean:
 
 test:
 	./bin/dpy ./sample/test.dp -o ./sample/test.ll
-	clang -emit-llvm -S lib/printnum.c -o lib/printnum.ll
-	llvm-link ./sample/test.ll ./lib/printnum.ll -S -o ./sample/link_test.ll
+	clang -emit-llvm -S lib/print.c -o lib/print.ll
+	llvm-link ./sample/test.ll ./lib/print.ll -S -o ./sample/link_test.ll
 	lli ./sample/link_test.ll
 
 run:
-	$(TOOL) -o $(SAMPLE_DIR)/test.ll -l $(LIB_DIR)/printnum.ll $(SAMPLE_DIR)/test.dc -jit
+	$(TOOL) -o $(SAMPLE_DIR)/test.ll -l $(LIB_DIR)/print.ll $(SAMPLE_DIR)/test.dc -jit
 
 link:
-	llvm-link $(SAMPLE_DIR)/test.ll $(LIB_DIR)/printnum.ll -S -o  $(SAMPLE_DIR)/link_test.ll
+	llvm-link $(SAMPLE_DIR)/test.ll $(LIB_DIR)/print.ll -S -o  $(SAMPLE_DIR)/link_test.ll
 
-lib:$(LIB_DIR)/printnum.c
-	clang -emit-llvm -S -O -o $(LIB_DIR)/printnum.ll $(LIB_DIR)/printnum.c
+lib:$(LIB_DIR)/print.c
+	clang -emit-llvm -S -O -o $(LIB_DIR)/print.ll $(LIB_DIR)/print.c
 
 do:
 	lli $(SAMPLE_DIR)/link_test.ll

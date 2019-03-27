@@ -17,7 +17,7 @@ enum TokenType{
 	TOK_IDENTIFIER,	//識別子
 	TOK_DIGIT,			//数字
 	TOK_SYMBOL,			//記号
-	TOK_INT,				//INT
+	TOK_DEF,				//DEF
 	TOK_INDENT,			//INDENT
 	TOK_DEDENT,			//DEDENT
 	TOK_NEWLINE,		//改行

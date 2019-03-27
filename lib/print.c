@@ -1,5 +1,5 @@
 # include <stdio.h>
 
-int printnum ( int i){
+int print ( int i){
     return printf ("%d\n",i);
 }
