@@ -233,7 +233,7 @@ FunctionStmtAST *Parser::visitFunctionStatement(PrototypeAST *proto){
 	BaseAST *last_stmt;
 
 	//{statement_list}
-	if(stmt=visitStatement()){
+	if((stmt=visitStatement())){
 		while(stmt){
 			if(llvm::isa<BinaryExprAST>(stmt) && llvm::dyn_cast<BinaryExprAST>(stmt)->getOp() == "="){
 				std::string LHSname = llvm::dyn_cast<VariableAST>(llvm::dyn_cast<BinaryExprAST>(stmt)->getLHS())->getName();
@@ -288,7 +288,7 @@ FunctionAST *Parser::visitExternalStatement(){
 
 	//{statement_list}
 	VariableTable.clear();
-	if(stmt=visitStatement()){
+	if((stmt=visitStatement())){
 		while(stmt){
 			if(llvm::isa<JumpStmtAST>(stmt)){
 				SAFE_DELETE(stmt);
@@ -335,9 +335,9 @@ FunctionAST *Parser::visitExternalStatement(){
   */
 BaseAST *Parser::visitStatement(){
 	BaseAST *stmt=NULL;
-	if(stmt=visitExpressionStatement()){
+	if((stmt=visitExpressionStatement())){
 		return stmt;
-	}else if(stmt=visitJumpStatement()){
+	}else if((stmt=visitJumpStatement())){
 		return stmt;
 	}else{
 		return NULL;
@@ -419,7 +419,7 @@ BaseAST *Parser::visitAssignmentExpression(){
 			if(Tokens->getCurType()==TOK_SYMBOL &&
 				Tokens->getCurString()=="="){
 				Tokens->getNextToken();
-				if(rhs=visitAdditiveExpression(NULL)){
+				if((rhs=visitAdditiveExpression(NULL))){
 					return new BinaryExprAST("=", lhs, rhs);
 				}else{
 					SAFE_DELETE(lhs);

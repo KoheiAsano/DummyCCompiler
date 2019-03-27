@@ -297,6 +297,7 @@ llvm::Value *CodeGen::generateBinaryExpression(BinaryExprAST *bin_expr){
 		//div
 		return Builder->CreateSDiv(lhs_v, rhs_v, "div_tmp");
 	}
+	return NULL;
 }
 
 
@@ -367,6 +368,7 @@ llvm::Value *CodeGen::generateJumpStatement(JumpStmtAST *jump_stmt){
 
 	}
 	Builder->CreateRet(ret_v);
+	return NULL;
 }
 
 

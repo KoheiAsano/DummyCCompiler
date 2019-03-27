@@ -1,4 +1,4 @@
-#ifndef AST_HPP 
+#ifndef AST_HPP
 #define AST_HPP
 
 
@@ -58,7 +58,7 @@ class BaseAST{
 };
 
 
-/** 
+/**
   * ソースコードを表すAST
   */
 class TranslationUnitAST{
@@ -87,7 +87,7 @@ class TranslationUnitAST{
 };
 
 
-/** 
+/**
   * 関数宣言を表すAST
   */
 class PrototypeAST{
@@ -103,7 +103,7 @@ class PrototypeAST{
 };
 
 
-/** 
+/**
   * 関数定義を表すAST
   */
 class FunctionAST{
@@ -118,7 +118,7 @@ class FunctionAST{
 };
 
 
-/** 
+/**
   * 関数定義(本文)を表すAST
   */
 class FunctionStmtAST{
@@ -129,13 +129,13 @@ class FunctionStmtAST{
 	FunctionStmtAST(){}
 	~FunctionStmtAST();
 	bool addVariableDeclaration(VariableDeclAST *vdecl);
-	bool addStatement(BaseAST *stmt){StmtLists.push_back(stmt);}
+	void addStatement(BaseAST *stmt){StmtLists.push_back(stmt);}
 	VariableDeclAST *getVariableDecl(int i){if(i<VariableDecls.size())return VariableDecls.at(i);else return NULL;}
 	BaseAST *getStatement(int i){if(i<StmtLists.size())return StmtLists.at(i);else return NULL;}
 };
 
 
-/** 
+/**
   * 変数宣言を表すAST
   */
 class VariableDeclAST: public BaseAST {
@@ -163,7 +163,7 @@ class VariableDeclAST: public BaseAST {
 
 
 
-/** 
+/**
   * 二項演算を表すAST
   */
 class  BinaryExprAST : public BaseAST{
@@ -184,7 +184,7 @@ class  BinaryExprAST : public BaseAST{
 };
 
 
-/** 
+/**
   * ";"を表すAST
   */
 class NullExprAST : public BaseAST{
@@ -197,7 +197,7 @@ class NullExprAST : public BaseAST{
 };
 
 
-/** 
+/**
   * 関数呼び出しを表すAST
   */
 class CallExprAST : public BaseAST{
@@ -217,7 +217,7 @@ class CallExprAST : public BaseAST{
 };
 
 
-/** 
+/**
   * ジャンプ(今回はreturn)を表すAST
   */
 class JumpStmtAST : public BaseAST{
@@ -234,7 +234,7 @@ class JumpStmtAST : public BaseAST{
 };
 
 
-/** 
+/**
   * 変数参照を表すAST
   */
 class VariableAST : public BaseAST{
@@ -251,7 +251,7 @@ class VariableAST : public BaseAST{
 };
 
 
-/** 
+/**
   * 整数を表すAST
   */
 class NumberAST : public BaseAST {
