@@ -7,4 +7,4 @@ int test(int j)
 
 
 i=10*2;i=10
-printnum(test(i))
+print(test(i))
