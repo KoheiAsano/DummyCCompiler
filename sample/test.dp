@@ -1,8 +1,6 @@
-int test(int j)
-	i=j*10
-	return i
-
-
+def test(j):
+	m10=j*10
+	return m10
 
 
 
