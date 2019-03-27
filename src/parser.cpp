@@ -47,6 +47,7 @@ bool Parser::visitTranslationUnit(){
 	TU->addPrototype(new PrototypeAST("print", param_list));
 	PrototypeTable["print"]=1;
 
+
 	//ExternalDecl
 	while(true){
 		if(!visitExternalDeclaration(TU)){
@@ -127,7 +128,7 @@ PrototypeAST *Parser	::visitPrototype(){
 	int bkup=Tokens->getCurIndex();
 
 	//type_specifier
-	if(Tokens->getCurType()==TOK_INT){
+	if(Tokens->getCurType()==TOK_DEF){
 		Tokens->getNextToken();
 	}else{
 		return NULL;
@@ -139,7 +140,7 @@ PrototypeAST *Parser	::visitPrototype(){
 		func_name=Tokens->getCurString();
 		Tokens->getNextToken();
 	}else{
-		Tokens->ungetToken(1);	//unget TOK_INT
+		Tokens->ungetToken(1);	//unget TOK_DEF
 		return NULL;
 	}
 
@@ -147,7 +148,7 @@ PrototypeAST *Parser	::visitPrototype(){
 	if(Tokens->getCurString()=="("){
 		Tokens->getNextToken();
 	}else{
-		Tokens->ungetToken(2);	//unget TOK_INT IDENTIFIER
+		Tokens->ungetToken(2);	//unget TOK_DEF IDENTIFIER
 		return NULL;
 	}
 
@@ -159,14 +160,7 @@ PrototypeAST *Parser	::visitPrototype(){
 		//','
 		if(!is_first_param && Tokens->getCurType()==TOK_SYMBOL && Tokens->getCurString()==","){
 			Tokens->getNextToken();
-		}
-		if(Tokens->getCurType()==TOK_INT){
-			Tokens->getNextToken();
-		}else{
-			break;
-		}
-
-		if(Tokens->getCurType()==TOK_IDENTIFIER){
+		}else if(Tokens->getCurType()==TOK_IDENTIFIER){
 			//引数の変数名に被りがないか確認
 			if(std::find(param_list.begin(), param_list.end(), Tokens->getCurString()) !=
 					param_list.end()){
@@ -175,6 +169,8 @@ PrototypeAST *Parser	::visitPrototype(){
 			}
 			param_list.push_back(Tokens->getCurString());
 			Tokens->getNextToken();
+		}else if(Tokens->getCurType()==TOK_SYMBOL && Tokens->getCurString()==")"){
+			break;
 		}else{
 			Tokens->applyTokenIndex(bkup);
 			return NULL;
@@ -186,11 +182,19 @@ PrototypeAST *Parser	::visitPrototype(){
 	//')'
 	if(Tokens->getCurString()==")"){
 		Tokens->getNextToken();
+	}else{
+		Tokens->applyTokenIndex(bkup);
+		return NULL;
+	}
+	//':'
+	if(Tokens->getCurString()==":"){
+		Tokens->getNextToken();
 		return new PrototypeAST(func_name, param_list);
 	}else{
 		Tokens->applyTokenIndex(bkup);
 		return NULL;
 	}
+
 }
 
 
@@ -323,36 +327,6 @@ FunctionAST *Parser::visitExternalStatement(){
   * VariableDeclaration用構文解析メソッド
   * @return 解析成功：VariableDeclAST　解析失敗：NULL
   */
-VariableDeclAST *Parser::visitVariableDeclaration(){
-	std::string name;
-
-	//INT
-	if(Tokens->getCurType()==TOK_INT){
-		Tokens->getNextToken();
-	}else{
-		return NULL;
-	}
-
-	//IDENTIFIER
-	if(Tokens->getCurType()==TOK_IDENTIFIER){
-		name=Tokens->getCurString();
-		Tokens->getNextToken();
-	}else{
-		Tokens->ungetToken(1);
-		return NULL;
-	}
-
-	//';'
-	if(Tokens->getCurString()==";" || Tokens->getCurString()=="NEWLINE"){
-		Tokens->getNextToken();
-		if(Tokens->getCurString()=="NEWLINE")//改行なら読み飛ばし
-			Tokens->getNextToken();
-		return new VariableDeclAST(name);
-	}else{
-		Tokens->ungetToken(2);
-		return NULL;
-	}
-}
 
 
 /**
