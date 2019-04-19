@@ -119,39 +119,35 @@ TokenStream *LexicalAnalysis(std::string input_filename){
 					ishead = false;
 				}
 
-			//コメント or '/'
-			}else if(next_char == '/'){
+			// '=' or '=='
+		}else if(next_char == '='){
 				token_str += next_char;
 				next_char = cur_line.at(index++);
 
-				//コメントの場合
-				if(next_char == '/'){
-						break;
-
-				//コメントの場合
-				}else if(next_char == '*'){
-					iscomment=true;
-					continue;
-
-				//DIVIDER('/')
+				//'=='の場合
+				if(next_char == '='){
+					token_str += next_char;
+					next_token = new Token(token_str, TOK_SYMBOL, line_num);
+					ishead = false;
 				}else{
 					index--;
 					next_token = new Token(token_str, TOK_SYMBOL, line_num);
 					ishead = false;
 				}
-
 			//それ以外(記号)
 			}else{
 				if(next_char == '*' ||
 						next_char == '+' ||
 						next_char == '-' ||
-						next_char == '=' ||
 						next_char == ';' ||
 						next_char == ',' ||
 						next_char == '(' ||
 						next_char == ')' ||
 						next_char == ':' ||
 						next_char == '{' ||
+						next_char == '/' ||
+						next_char == '<' ||
+						next_char == '>' ||
 						next_char == '}'){
 					token_str += next_char;
 					next_token = new Token(token_str, TOK_SYMBOL, line_num);
