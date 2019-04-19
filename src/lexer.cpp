@@ -93,6 +93,9 @@ TokenStream *LexicalAnalysis(std::string input_filename){
 				if(token_str == "def"){
 					next_token = new Token(token_str, TOK_DEF, line_num);
 					ishead = false;
+				}else if(token_str == "if"){
+					next_token = new Token(token_str, TOK_IF, line_num);
+					ishead = false;
 				}else if(token_str == "return"){
 					next_token = new Token(token_str, TOK_RETURN, line_num);
 					ishead = false;
